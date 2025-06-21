@@ -1,3 +1,45 @@
-vagrant/Manual/.vagrant/
+# Ignore Python cache and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+ENV/
+
+# Ignore node modules
+node_modules/
+
+# Ignore Mac system files
 .DS_Store
-vagrant/.DS_Store
+
+# Ignore Docker volumes and backup directories
+db_data/
+web_data/
+app_data/
+db_backup/
+Docker-backed/
+docker-backered/
+
+# Ignore log files
+*.log
+
+# Ignore IDE/editor settings
+.vscode/
+.idea/
+*.swp
+
+# Ignore build artifacts
+dist/
+build/
+target/
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore coverage reports
+coverage/
+*.cover
+
+# Ignore other system files

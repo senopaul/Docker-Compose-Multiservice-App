@@ -1,0 +1,83 @@
+version: "3.8"
+
+services:
+  # MySQL: relational database for data storage
+  db01:
+    image: mysql:8.0
+    container_name: mysql_db01
+    volumes:
+      - ./db_data:/var/lib/mysql
+      - ./db_data:/docker-entrypoint-initdb.d/db_backup
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "3306:3306"
+    networks:
+      - app_network
+
+  # Memcached: in-memory cache for fast data access
+  mem01:
+    image: memcached:latest
+    container_name: mem01
+    ports:
+      - "11211:11211"
+      - "11211:11211/udp"
+    command: memcached -p 11211 -u memcache
+    networks:
+      - app_network
+
+  # RabbitMQ: message broker for communication between services
+  rmq01:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_rmq01
+    environment:
+      - RABBITMQ_DEFAULT_USER=myuser
+      - RABBITMQ_DEFAULT_PASS=mypassword
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - app_network
+
+  # Tomcat: Java application server
+  app01:
+    image: tomcat:9.0
+    container_name: app01
+    depends_on:
+      - db01
+      - mem01
+      - rmq01
+    volumes:
+      - ./app/webapps:/usr/local/tomcat/webapps
+    ports:
+      - "8080:8080"
+    environment:
+      - CATALINA_OPTS=-Xms512m -Xmx1024m
+    networks:
+      - app_network
+
+  # Nginx: web server and reverse proxy
+  webserver01:
+    image: nginx:latest
+    container_name: webserver01
+    depends_on:
+      - app01
+    ports:
+      - "8081:80"
+    volumes:
+      - ./web/html:/usr/share/nginx/html
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  db_data:
+  web_data:
+  app_data:
+  db_backup:
